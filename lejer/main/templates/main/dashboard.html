@@ -1,0 +1,202 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block header %}Operations Overview{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stat-card,
+    .dashboard-panel {
+        animation: cardRise .5s ease-out both;
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+    .stat-card:hover,
+    .dashboard-panel:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 1rem 2rem rgba(0, 0, 0, .12) !important;
+    }
+
+    .stat-card i {
+        transition: transform .25s ease, opacity .25s ease;
+    }
+
+    .stat-card:hover i {
+        transform: scale(1.08) rotate(-3deg);
+        opacity: .72 !important;
+    }
+
+    .stat-card-delay-1 { animation-delay: .05s; }
+    .stat-card-delay-2 { animation-delay: .12s; }
+    .stat-card-delay-3 { animation-delay: .19s; }
+    .stat-card-delay-4 { animation-delay: .26s; }
+    .dashboard-panel-delay-1 { animation-delay: .33s; }
+    .dashboard-panel-delay-2 { animation-delay: .4s; }
+
+    @keyframes cardRise {
+        from {
+            opacity: 0;
+            transform: translateY(16px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .stat-card,
+        .dashboard-panel,
+        .stat-card i {
+            animation: none;
+            transition: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Quick Stats Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="card stat-card stat-card-delay-1 bg-primary text-white mb-4 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-white-50 small">Recent Orders</div>
+                        <div class="fs-4 fw-bold">{{ recent_orders.count }}</div>
+                    </div>
+                    <i class="bi bi-cart-fill fs-1 opacity-50"></i>
+                </div>
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between small">
+                <a class="text-white stretched-link" href="{% url 'orders' %}">View Details</a>
+                <i class="bi bi-chevron-right"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6">
+        <div class="card stat-card stat-card-delay-2 bg-danger text-white mb-4 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-white-50 small">Low Stock Items</div>
+                        <div class="fs-4 fw-bold">{{ low_stock|length }}</div>
+                    </div>
+                    <i class="bi bi-exclamation-triangle-fill fs-1 opacity-50"></i>
+                </div>
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between small">
+                <a class="text-white stretched-link" href="{% url 'inventory' %}">Manage Inventory</a>
+                <i class="bi bi-chevron-right"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card stat-card stat-card-delay-3 bg-warning text-dark mb-4 shadow-sm border-0">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-dark-50 small">Expiring Soon</div>
+                        <div class="fs-4 fw-bold">{{ expiring_batches.count }}</div>
+                    </div>
+                    <i class="bi bi-calendar-event fs-1 opacity-50"></i>
+                </div>
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between small">
+                <span class="text-dark">Next 30 Days</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card stat-card stat-card-delay-4 bg-success text-white mb-4 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-white-50 small">System Status</div>
+                        <div class="fs-4 fw-bold">Active</div>
+                    </div>
+                    <i class="bi bi-check-circle-fill fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Low Stock Table -->
+    <div class="col-lg-7">
+        <div class="card dashboard-panel dashboard-panel-delay-1 shadow-sm mb-4">
+            <div class="card-header py-3 bg-white d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary"><i class="bi bi-graph-down me-2"></i>Critical Stock Levels</h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Product</th>
+                                <th>Current Stock</th>
+                                <th>Threshold</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in low_stock %}
+                            <tr>
+                                <td>{{ item.name }} <br><small class="text-muted">{{ item.sku }}</small></td>
+                                <td><span class="text-danger fw-bold">{{ item.total_stock }}</span></td>
+                                <td>{{ item.low_stock_threshold }}</td>
+                                <td>
+                                    {% if request.user.is_staff %}
+                                    <a href="{% url 'product_add_stock' item.pk %}" class="btn btn-sm btn-outline-primary">Restock</a>
+                                    {% else %}
+                                    <a href="{% url 'inventory' %}" class="btn btn-sm btn-outline-primary">View</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center py-4 text-muted">No low stock items currently.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Expiring Reagents -->
+    <div class="col-lg-5">
+        <div class="card dashboard-panel dashboard-panel-delay-2 shadow-sm mb-4">
+            <div class="card-header py-3 bg-white">
+                <h6 class="m-0 font-weight-bold text-warning"><i class="bi bi-thermometer-high me-2"></i>Reagent Expiry Watch</h6>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    {% for batch in expiring_batches %}
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="fw-bold">{{ batch.product.name }}</span>
+                                <div class="small text-muted">Batch: {{ batch.batch_number }}</div>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-warning text-dark">{{ batch.expiry_date }}</span>
+                                <div class="small text-danger">Qty: {{ batch.quantity }}</div>
+                            </div>
+                        </div>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-center py-4 text-muted">No chemicals expiring soon.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

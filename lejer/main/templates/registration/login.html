@@ -1,0 +1,146 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Lejer Lab Supplies</title>
+    <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at top left, rgba(13, 110, 253, .18), transparent 32rem),
+                linear-gradient(135deg, #f7fafc 0%, #e9eef5 100%);
+        }
+
+        .login-shell {
+            min-height: 100vh;
+        }
+
+        .login-card {
+            width: min(100%, 420px);
+            border: 0;
+            border-radius: 8px;
+            animation: loginRise .55s ease-out both;
+        }
+
+        .brand-mark {
+            width: 48px;
+            height: 48px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: #0d6efd;
+            color: #fff;
+            box-shadow: 0 12px 28px rgba(13, 110, 253, .24);
+        }
+
+        .form-control {
+            min-height: 46px;
+        }
+
+        .btn-login {
+            min-height: 46px;
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 22px rgba(13, 110, 253, .22);
+        }
+
+        @keyframes loginRise {
+            from {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .login-card,
+            .btn-login {
+                animation: none;
+                transition: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="login-shell d-flex align-items-center justify-content-center p-3">
+        <section class="login-card card shadow-lg">
+            <div class="card-body p-4 p-sm-5">
+                <div class="text-center mb-4">
+                    <span class="brand-mark mb-3">
+                        <i class="bi bi-flask fs-4"></i>
+                    </span>
+                    <h1 class="h3 mb-1">Lejer Lab Supplies</h1>
+                    <p class="text-muted mb-0">Sign in to continue</p>
+                </div>
+
+                {% if form.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {% if form.non_field_errors %}
+                            {{ form.non_field_errors }}
+                        {% else %}
+                            Please enter your username and password, then try again.
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label" for="{{ form.username.id_for_label }}">Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person"></i></span>
+                            <input
+                                type="text"
+                                name="{{ form.username.html_name }}"
+                                id="{{ form.username.id_for_label }}"
+                                class="form-control"
+                                value="{{ form.username.value|default_if_none:'' }}"
+                                autocomplete="username"
+                                required
+                                autofocus
+                            >
+                        </div>
+                        {% if form.username.errors %}
+                            <div class="text-danger small mt-1">{{ form.username.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label" for="{{ form.password.id_for_label }}">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                            <input
+                                type="password"
+                                name="{{ form.password.html_name }}"
+                                id="{{ form.password.id_for_label }}"
+                                class="form-control"
+                                autocomplete="current-password"
+                                required
+                            >
+                        </div>
+                        {% if form.password.errors %}
+                            <div class="text-danger small mt-1">{{ form.password.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-login w-100">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Log In
+                    </button>
+                </form>
+            </div>
+        </section>
+    </main>
+    <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>

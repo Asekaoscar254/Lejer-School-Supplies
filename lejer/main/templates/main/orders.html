@@ -1,0 +1,46 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block header %}School Orders{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+    <h4>All Incoming Orders</h4>
+    <a href="/admin/main/order/add/" class="btn btn-primary btn-sm">Add New Order</a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-striped mb-0">
+            <thead>
+                <tr>
+                    <th>Invoice No</th>
+                    <th>School</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td><strong>{{ order.invoice_no }}</strong></td>
+                    <td>{{ order.school.name }}</td>
+                    <td>{{ order.order_date|date:"M d, Y" }}</td>
+                    <td>
+                        {% if order.is_delivered %}
+                            <span class="text-success"><i class="bi bi-check-circle-fill"></i> Delivered</span>
+                        {% else %}
+                            <span class="text-warning"><i class="bi bi-clock-history"></i> Pending</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="#" class="btn btn-outline-secondary btn-sm">View Details</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<h2>Reviews & Alerts</h2>
+
+{% if low_stock %}
+  <div class="alert alert-warning">
+    <strong>Low stock for:</strong>
+    <ul>
+      {% for p in low_stock %}
+        <li>{{ p.name }} ({{ p.total_stock }})</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% else %}
+  <p>No low stock alerts.</p>
+{% endif %}
+
+{% endblock %}
